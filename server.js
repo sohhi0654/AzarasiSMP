@@ -15,7 +15,8 @@ const ADMIN_PASSWORD = 'azarasi1234';
 // ------------------------------------
 // Discord Botのセットアップ
 // ------------------------------------
-const DISCORD_TOKEN = 'MTU0MDMwODc0MDk0MTY3NjY2NA.GS9cjC.Yc6wSSG8oNtixWWV9s7NWxNH1ErDVMemm16BTM';
+// Renderの環境変数からトークンを安全に読み込みます
+const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 const CONTACT_CHANNEL_ID = '1334457867012669440';
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] });
@@ -24,9 +25,14 @@ client.once('ready', () => {
     console.log(`✅ Discord Bot ログイン完了: ${client.user.tag}`);
 });
 
-client.login(DISCORD_TOKEN).catch(err => {
-    console.error('❌ Discord Botのログインに失敗しました:', err);
-});
+// トークンが設定されている場合のみログインを試みる
+if (DISCORD_TOKEN) {
+    client.login(DISCORD_TOKEN).catch(err => {
+        console.error('❌ Discord Botのログインに失敗しました:', err);
+    });
+} else {
+    console.warn('⚠️ DISCORD_TOKENが環境変数に設定されていません。');
+}
 
 
 // ------------------------------------
@@ -120,14 +126,16 @@ app.post('/api/contact', async (req, res) => {
         fs.writeFileSync(contactsFile, JSON.stringify(contacts, null, 2));
 
         // Discordへ通知
-        const channel = await client.channels.fetch(CONTACT_CHANNEL_ID);
-        if (channel) {
-            await channel.send(
-                `🔔 **サイトから新しいお問い合わせが届きました**\n` +
-                `**【送信者】** ${newContact.name}\n` +
-                `**【件名】** ${newContact.subject}\n` +
-                `**【メッセージ】**\n${newContact.message}`
-            );
+        if (client.isReady()) {
+            const channel = await client.channels.fetch(CONTACT_CHANNEL_ID);
+            if (channel) {
+                await channel.send(
+                    `🔔 **サイトから新しいお問い合わせが届きました**\n` +
+                    `**【送信者】** ${newContact.name}\n` +
+                    `**【件名】** ${newContact.subject}\n` +
+                    `**【メッセージ】**\n${newContact.message}`
+                );
+            }
         }
 
         res.json({ success: true });
@@ -173,13 +181,15 @@ app.post('/api/admin/reply', async (req, res) => {
         fs.writeFileSync(contactsFile, JSON.stringify(contacts, null, 2));
 
         // Discordへ返信内容を送信
-        const channel = await client.channels.fetch(CONTACT_CHANNEL_ID);
-        if (channel) {
-            await channel.send(
-                `✅ **管理者からのお問い合わせ返信**\n` +
-                `**【宛先】** ${contacts[contactIndex].name} さん (${contacts[contactIndex].subject})\n` +
-                `**【返信内容】**\n${replyMessage}`
-            );
+        if (client.isReady()) {
+            const channel = await client.channels.fetch(CONTACT_CHANNEL_ID);
+            if (channel) {
+                await channel.send(
+                    `✅ **管理者からのお問い合わせ返信**\n` +
+                    `**【宛先】** ${contacts[contactIndex].name} さん (${contacts[contactIndex].subject})\n` +
+                    `**【返信内容】**\n${replyMessage}`
+                );
+            }
         }
 
         res.json({ success: true });
