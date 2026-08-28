@@ -2,8 +2,9 @@
   "name": "azarasi-web",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -11,6 +12,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "discord.js": "^14.14.1",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
     "minecraft-server-util": "^5.4.4"
