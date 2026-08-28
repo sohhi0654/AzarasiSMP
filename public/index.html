@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Azarasi SMP</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    /* グラデーションを削除し、bg.pngのみを背景に指定します */
+    background: url('bg.png') no-repeat center center fixed;
+    background-size: cover;
+    color: #e8dcc8;
+    overflow-x: hidden;
+  }
+
+  .seal-float {
+    position: fixed;
+    font-size: 80px;
+    opacity: 0.08;
+    z-index: -1;
+  }
+
+  .seal-float:nth-child(1) { top: 10%; left: 5%; font-size: 120px; }
+  .seal-float:nth-child(2) { top: 40%; right: 8%; font-size: 100px; }
+  .seal-float:nth-child(3) { bottom: 15%; left: 12%; font-size: 110px; }
+
+  header {
+    background: rgba(15, 95, 143, 0.2);
+    backdrop-filter: blur(10px);
+    border-bottom: 2px solid #00d9ff;
+    padding: 20px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .logo {
+    font-size: 24px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+
+  .logo-seal {
+    font-size: 32px;
+    animation: bob 2s ease-in-out infinite;
+  }
+
+  @keyframes bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 25px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .nav-links button {
+    background: none;
+    border: none;
+    color: #e8dcc8;
+    font-size: 14px;
+    cursor: pointer;
+    transition: color 0.3s;
+    font-weight: 500;
+  }
+
+  .nav-links button:hover {
+    color: #00d9ff;
+  }
+
+  .nav-links button.active {
+    color: #00d9ff;
+    border-bottom: 2px solid #00d9ff;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .page {
+    display: none;
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  .page.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .hero {
+    text-align: center;
+    margin: 60px 0 40px;
+  }
+
+  .hero-title {
+    font-size: 3.5em;
+    font-weight: 800;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #00d9ff 0%, #0f95d9 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-subtitle {
+    font-size: 1.3em;
+    color: #b0a89e;
+    margin-bottom: 40px;
+  }
+
+  .server-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    max-width: 800px;
+    margin: 40px auto;
+  }
+
+  .info-box {
+    background: rgba(15, 95, 143, 0.25);
+    border: 2px solid #00d9ff;
+    border-radius: 12px;
+    padding: 25px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s;
+  }
+
+  .info-box:hover {
+    background: rgba(15, 95, 143, 0.35);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 217, 255, 0.2);
+  }
+
+  .info-label {
+    color: #b0a89e;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+  }
+
+  .info-value {
+    color: #00d9ff;
+    font-size: 18px;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+  }
+
+  .status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin: 40px 0;
+  }
+
+  .status-card {
+    background: rgba(15, 95, 143, 0.2);
+    border: 1px solid #00d9ff;
+    border-radius: 12px;
+    padding: 25px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s;
+  }
+
+  .status-card:hover {
+    background: rgba(15, 95, 143, 0.3);
+    transform: scale(1.05);
+  }
+
+  .status-icon {
+    font-size: 40px;
+    margin-bottom: 10px;
+  }
+
+  .status-text {
+    color: #b0a89e;
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+
+  .status-value {
+    color: #00d9ff;
+    font-size: 24px;
+    font-weight: bold;
+  }
+
+  .section-title {
+    font-size: 2em;
+    font-weight: 700;
+    margin: 40px 0 30px;
+    color: #e8dcc8;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+    margin: 40px 0;
+  }
+
+  .feature-card {
+    background: rgba(15, 95, 143, 0.2);
+    border: 1px solid #0f5f8f;
+    border-radius: 12px;
+    padding: 30px;
+    backdrop-filter: blur(10px);
+  }
+
+  .feature-icon {
+    font-size: 40px;
+    margin-bottom: 15px;
+  }
+
+  .feature-title {
+    font-size: 1.2em;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #e8dcc8;
+  }
+
+  .feature-text {
+    color: #b0a89e;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .rule-card {
+    background: rgba(15, 95, 143, 0.2);
+    border: 1px solid #00d9ff;
+    border-radius: 12px;
+    padding: 25px;
+    margin: 20px 0;
+    backdrop-filter: blur(10px);
+  }
+
+  .rule-title {
+    font-size: 1.3em;
+    font-weight: 700;
+    color: #00d9ff;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .rule-content {
+    color: #b0a89e;
+    line-height: 1.8;
+  }
+
+  .blog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    margin: 40px 0;
+  }
+
+  .blog-card {
+    background: rgba(15, 95, 143, 0.2);
+    border: 1px solid #0f5f8f;
+    border-radius: 12px;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+
+  .blog-card:hover {
+    transform: translateY(-5px);
+    border-color: #00d9ff;
+    box-shadow: 0 10px 30px rgba(0, 217, 255, 0.2);
+  }
+
+  .blog-date {
+    background: rgba(0, 217, 255, 0.2);
+    border-bottom: 1px solid #00d9ff;
+    padding: 15px;
+    font-size: 12px;
+    color: #b0a89e;
+  }
+
+  .blog-content {
+    padding: 20px;
+  }
+
+  .blog-title {
+    font-size: 1.2em;
+    font-weight: 700;
+    color: #e8dcc8;
+    margin-bottom: 10px;
+  }
+
+  .blog-excerpt {
+    color: #b0a89e;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 15px;
+  }
+
+  .blog-author {
+    font-size: 12px;
+    color: #00d9ff;
+  }
+
+  .blog-detail {
+    background: rgba(15, 95, 143, 0.2);
+    border: 1px solid #0f5f8f;
+    border-radius: 12px;
+    padding: 40px;
+    margin: 20px 0;
+    backdrop-filter: blur(10px);
+  }
+
+  .blog-detail-date {
+    color: #b0a89e;
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+
+  .blog-detail-title {
+    font-size: 2.2em;
+    font-weight: 700;
+    color: #00d9ff;
+    margin-bottom: 15px;
+  }
+
+  .blog-detail-author {
+    color: #b0a89e;
+    margin-bottom: 30px;
+    font-size: 14px;
+  }
+
+  .blog-detail-content {
+    color: #e8dcc8;
+    line-height: 1.8;
+    margin-bottom: 30px;
+  }
+
+  .back-button {
+    display: inline-block;
+    color: #00d9ff;
+    cursor: pointer;
+    margin-bottom: 20px;
+    font-size: 14px;
+    text-decoration: underline;
+  }
+
+  .back-button:hover {
+    color: #e8dcc8;
+  }
+
+  .form-section {
+    background: rgba(15, 95, 143, 0.2);
+    border: 1px solid #0f5f8f;
+    border-radius: 12px;
+    padding: 30px;
+    max-width: 600px;
+    margin: 40px auto;
+    backdrop-filter: blur(10px);
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-label {
+    display: block;
+    color: #e8dcc8;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  input[type="text"],
+  input[type="password"],
+  input[type="email"],
+  textarea {
+    width: 100%;
+    background: rgba(0, 217, 255, 0.1);
+    border: 1px solid #00d9ff;
+    color: #e8dcc8;
+    padding: 12px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+  }
+
+  textarea {
+    min-height: 150px;
+    resize: vertical;
+  }
+
+  input[type="text"]:focus,
+  input[type="password"]:focus,
+  textarea:focus {
+    outline: none;
+    border-color: #e8dcc8;
+    box-shadow: 0 0 10px rgba(0, 217, 255, 0.3);
+  }
+
+  .cta-button {
+    display: inline-block;
+    background: linear-gradient(135deg, #00d9ff 0%, #0f95d9 100%);
+    color: #051019;
+    padding: 15px 40px;
+    border: none;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin: 10px 10px 10px 0;
+  }
+
+  .cta-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(0, 217, 255, 0.4);
+  }
+
+  .cta-button.secondary {
+    background: transparent;
+    border: 2px solid #00d9ff;
+    color: #00d9ff;
+  }
+
+  .players-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+  }
+
+  .player-item {
+    background: rgba(0, 217, 255, 0.1);
+    border: 1px solid #00d9ff;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .player-name {
+    color: #e8dcc8;
+    font-weight: 600;
+    font-size: 13px;
+    word-break: break-all;
+  }
+
+  .error {
+    background: rgba(210, 90, 48, 0.2);
+    border: 2px solid #d25a30;
+    color: #ff9f7f;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+  }
+
+  .success {
+    background: rgba(99, 153, 34, 0.2);
+    border: 2px solid #639922;
+    color: #b5e61d;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+  }
+
+  footer {
+    background: rgba(15, 95, 143, 0.2);
+    border-top: 2px solid #00d9ff;
+    padding: 40px 20px;
+    text-align: center;
+    color: #b0a89e;
+    margin-top: 60px;
+  }
+
+  @media (max-width: 768px) {
+    .hero-title {
+      font-size: 2.5em;
+    }
+    
+    .server-info {
+      grid-template-columns: 1fr;
+    }
+    
+    .nav-links {
+      gap: 10px;
+    }
+    
+    .features-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="seal-float">🦭</div>
+  <div class="seal-float">🦭</div>
+  <div class="seal-float">🦭</div>
+
+  <header>
+    <div class="header-content">
+      <div class="logo" onclick="switchPage('home')">
+        <span class="logo-seal">🦭</span>
+        <span>Azarasi SMP</span>
+      </div>
+      <nav class="nav-links">
+        <button onclick="switchPage('home')" class="nav-btn active" data-page="home">ホーム</button>
+        <button onclick="switchPage('rules')" class="nav-btn" data-page="rules">ルール</button>
+        <button onclick="switchPage('blog')" class="nav-btn" data-page="blog">ニュース</button>
+        <button onclick="switchPage('members')" class="nav-btn" data-page="members">メンバー</button>
+        <button onclick="switchPage('contact')" class="nav-btn" data-page="contact">お問い合わせ</button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- HOME PAGE -->
+    <div id="home" class="page active">
+      <section class="hero">
+        <h1 class="hero-title">Azarasi SMP</h1>
+        <p class="hero-subtitle">24時間開放中 🌊 仲間が増えて街も拡大中</p>
+        
+        <div class="server-info">
+          <div class="info-box">
+            <div class="info-label">🌐 サーバーIP</div>
+            <div class="info-value">mc.azarasi.f5.si:25664</div>
+          </div>
+          <div class="info-box">
+            <div class="info-label">🎮 バージョン</div>
+            <div class="info-value">Java 26.2</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="container">
+        <h2 class="section-title">🎯 サーバーステータス</h2>
+        <div class="status-grid">
+          <div class="status-card">
+            <div class="status-icon">👥</div>
+            <div class="status-text">現在のプレイヤー</div>
+            <div class="status-value" id="player-count">読込中...</div>
+          </div>
+          <div class="status-card">
+            <div class="status-icon">⚡</div>
+            <div class="status-text">サーバー状態</div>
+            <div class="status-value" id="server-status">⏳ 接続中...</div>
+          </div>
+          <div class="status-card">
+            <div class="status-icon">🚀</div>
+            <div class="status-text">稼働時間</div>
+            <div class="status-value">24/7</div>
+          </div>
+          <div class="status-card">
+            <div class="status-icon">🛡️</div>
+            <div class="status-text">セキュリティ</div>
+            <div class="status-value">Prism搭載</div>
+          </div>
+        </div>
+
+        <div id="players-section" style="margin-top: 40px; display: none;">
+          <h3 class="section-title">🎮 オンラインのプレイヤー</h3>
+          <div class="players-grid" id="players-grid"></div>
+        </div>
+      </section>
+
+      <section class="container">
+        <h2 class="section-title">✨ Azarasi SMPの特徴</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">🌙</div>
+            <div class="feature-title">24時間開放</div>
+            <div class="feature-text">夜更かしプレイも早朝ログインも大歓迎！いつでも好きな時間にプレイできます。</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🎮</div>
+            <div class="feature-title">バニラ環境</div>
+            <div class="feature-text">マイクラ本来の自由なサバイバルを楽しめます。複雑なルールはなし！</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🛡️</div>
+            <div class="feature-title">安心のセキュリティ</div>
+            <div class="feature-text">Prismを導入しているため、万が一の被害があってもすぐに復旧できます。</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <div class="feature-title">快適な環境</div>
+            <div class="feature-text">tpaやhomeなどの便利な機能を取り入れています。</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🤝</div>
+            <div class="feature-title">フレンドリー</div>
+            <div class="feature-text">少しずつ施設や建物が増えて、みんなで協力して開発を楽しんでいます。</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🎯</div>
+            <div class="feature-title">途中参加OK</div>
+            <div class="feature-text">「遅いかな」という心配は不要！まだまだ発展途上なので新しい仲間は大歓迎です。</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="container" style="text-align: center; padding: 60px 20px;">
+        <h2 class="section-title">今すぐ参加しよう！</h2>
+        <a href="https://discord.gg/ZmKjZXjVSW" class="cta-button" target="_blank">Discordに参加</a>
+        <button class="cta-button secondary" onclick="copyToClipboard('mc.azarasi.f5.si:25664')">IPをコピー</button>
+      </section>
+    </div>
+
+    <!-- RULES PAGE -->
+    <div id="rules" class="page">
+      <h1 class="hero-title" style="text-align: center; margin: 40px 0;">📜 コミュニティルール</h1>
+      
+      <div class="rule-card">
+        <div class="rule-title">🚫 PvP（殺し合い）について</div>
+        <div class="rule-content">
+          Azarasi SMPでは、プレイヤー同士の殺し合いを推奨していません。このサーバーは協力と共存をコンセプトとしています。やむを得ない状況での戦闘を除き、他のプレイヤーを意図的に攻撃することはお控えください。
+        </div>
+      </div>
+
+      <div class="rule-card">
+        <div class="rule-title">🤝 協力を心がける</div>
+        <div class="rule-content">
+          サーバーの魅力は、みんなで協力して世界を作り上げることです。困っている人を助けたり、大きなプロジェクトには一緒に参加したりしましょう。一人で黙々と開発するのもOKですが、チームワークを大切にしましょう。
+        </div>
+      </div>
+
+      <div class="rule-card">
+        <div class="rule-title">🏠 他のプレイヤーの建築物を尊重</div>
+        <div class="rule-content">
+          他の人が作った建物や施設を無断で破壊・改造することは厳禁です。もし改造したい場合は、必ず事前に相談してください。Prismで履歴が記録されているので、無断破壊は検知されます。
+        </div>
+      </div>
+
+      <div class="rule-card">
+        <div class="rule-title">💬 荒らし・ハラスメント禁止</div>
+        <div class="rule-content">
+          チャットでの暴言、嫌がらせ、スパムは一切禁止です。楽しいコミュニティを保つため、みんなが気持ちよく過ごせるような言葉遣いを心がけましょう。深刻な荒らしはサーバーからの強制退出となります。
+        </div>
+      </div>
+
+      <div class="rule-card">
+        <div class="rule-title">⚠️ チート・不正行為禁止</div>
+        <div class="rule-content">
+          X-Ray、マクロ、MODなどの不正ツール使用は厳禁です。バニラクライアントでの正々堂々としたプレイをお願いします。チートが発見された場合、即座にサーバーから削除されます。
+        </div>
+      </div>
+
+      <div class="rule-card">
+        <div class="rule-title">🎯 資源の独占禁止</div>
+        <div class="rule-content">
+          レアな資源（ダイヤモンド鉱石がある場所など）を意図的に独占することは控えてください。みんなで共存できるように、バランスよく利用しましょう。もし大規模なマイニング計画があれば、Discordで事前に相談しましょう。
+        </div>
+      </div>
+
+      <div class="rule-card">
+        <div class="rule-title">🌍 ワールド保全</div>
+        <div class="rule-content">
+          大規模な地形改変（山を丸ごと削る、海を埋め立てるなど）をする場合は、事前にコミュニティに相談してください。みんなで気持ちよく遊べるワールドを保ちましょう。
+        </div>
+      </div>
+
+      <div class="rule-card">
+        <div class="rule-title">✅ 楽しさ優先</div>
+        <div class="rule-content">
+          上記のルールは目安です。最優先は「みんなで楽しむ」こと。判断に迷ったら、Discordで相談してください。運営メンバーがいつでも相談に乗ります！
+        </div>
+      </div>
+    </div>
+
+    <!-- BLOG PAGE -->
+    <div id="blog" class="page">
+      <h1 class="hero-title" style="text-align: center; margin: 40px 0;">📰 ニュース & ブログ</h1>
+      <div id="blog-list"></div>
+      <div id="blog-detail" style="display: none;"></div>
+    </div>
+
+    <!-- MEMBERS PAGE -->
+    <div id="members" class="page">
+      <h1 class="hero-title" style="text-align: center; margin: 40px 0;">👥 メンバー</h1>
+      
+      <section class="container">
+        <p style="text-align: center; color: #b0a89e; margin-bottom: 40px;">
+          現在8人のメンバーがアザラシSMPで活動しています！<br>
+          殺し合いをせず、協力して街を作り上げています 🦭
+        </p>
+
+        <div class="blog-grid">
+          <div class="feature-card">
+            <div class="feature-icon">🎮</div>
+            <div class="feature-title">建築担当</div>
+            <div class="feature-text">大きな建物や公共施設を担当。創造的な構想者たちが協力して街を形作っています。</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">⚒️</div>
+            <div class="feature-title">採掘担当</div>
+            <div class="feature-text">資源の採掘と整理を担当。みんなが必要な材料を供給してくれるチーム。</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🌳</div>
+            <div class="feature-title">環境設計</div>
+            <div class="feature-text">自然環境の美化と整備を担当。ワールドが素敵に見えるように工夫しています。</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">⚙️</div>
+            <div class="feature-title">機構者</div>
+            <div class="feature-text">レッドストーン回路や装置を設計。ファーム建設など高度な機構を担当します。</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🎨</div>
+            <div class="feature-title">デザイナー</div>
+            <div class="feature-text">細かなディテールや装飾を手がけます。建物に命を吹き込みます。</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🤝</div>
+            <div class="feature-title">コミュニティ管理</div>
+            <div class="feature-text">Discord管理やプレイヤーサポート。みんなが楽しく遊べるように尽力します。</div>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin: 60px 0;">
+          <h2 class="section-title">あなたも一緒に活動しませんか？</h2>
+          <a href="https://discord.gg/ZmKjZXjVSW" class="cta-button" target="_blank">Discordに参加</a>
+        </div>
+      </section>
+    </div>
+
+    <!-- CONTACT PAGE -->
+    <div id="contact" class="page">
+      <h1 class="hero-title" style="text-align: center; margin: 40px 0;">📧 お問い合わせ</h1>
+      
+      <div class="form-section">
+        <h2 class="section-title" style="margin-top: 0;">質問やご提案はこちら</h2>
+        <form onsubmit="handleContactForm(event)">
+          <div class="form-group">
+            <label class="form-label">お名前（Minecraftプレイヤー名）</label>
+            <input type="text" id="contact-name" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">メールアドレス（任意）</label>
+            <input type="email" id="contact-email">
+          </div>
+          <div class="form-group">
+            <label class="form-label">件名</label>
+            <input type="text" id="contact-subject" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">メッセージ</label>
+            <textarea id="contact-message" required></textarea>
+          </div>
+          <button type="submit" class="cta-button">送信</button>
+        </form>
+        <div id="contact-result"></div>
+      </div>
+
+      <div class="container" style="text-align: center; margin-top: 40px;">
+        <h3 class="section-title">Discord</h3>
+        <p style="color: #b0a89e; margin-bottom: 20px;">
+          最も早い返信はDiscordです！<br>
+          ぜひサーバーに参加してお話しましょう 🦭
+        </p>
+        <a href="https://discord.gg/ZmKjZXjVSW" class="cta-button" target="_blank">Discordに参加</a>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Azarasi SMP - We Build Together 🦭</p>
+    <p style="margin-top: 10px; font-size: 12px;">© 2026 Azarasi SMP Community</p>
+  </footer>
+
+  <script>
+    let currentPage = 'home';
+    let loadedBlogs = [];
+
+    async function fetchServerStatus() {
+      try {
+        const res = await fetch('/api/status');
+        const data = await res.json();
+        
+        const countEl = document.getElementById('player-count');
+        const statusEl = document.getElementById('server-status');
+        const playersSec = document.getElementById('players-section');
+        const playersGrid = document.getElementById('players-grid');
+
+        if (data.online) {
+          statusEl.innerText = '🟢 稼働中';
+          countEl.innerText = `${data.players}/${data.max}`;
+
+          if (data.list && data.list.length > 0) {
+            playersSec.style.display = 'block';
+            playersGrid.innerHTML = data.list.map(name => 
+              `<div class="player-item"><div class="player-name">${name}</div></div>`
+            ).join('');
+          } else {
+            playersSec.style.display = 'none';
+          }
+        } else {
+          statusEl.innerText = '🔴 停止中';
+          countEl.innerText = '0/0';
+          playersSec.style.display = 'none';
+        }
+      } catch (e) {
+        console.error('サーバー情報の取得に失敗しました', e);
+      }
+    }
+
+    window.onload = () => {
+      fetchServerStatus();
+      setInterval(fetchServerStatus, 15000);
+    };
+
+    function switchPage(page) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(page).classList.add('active');
+      
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`[data-page="${page}"]`).classList.add('active');
+      
+      currentPage = page;
+      
+      if (page === 'blog') {
+        fetchBlogs();
+      }
+      
+      window.scrollTo(0, 0);
+    }
+
+    async function fetchBlogs() {
+      try {
+        const res = await fetch('/api/blogs');
+        loadedBlogs = await res.json();
+        renderBlogList();
+      } catch (e) {
+        console.error('ブログの取得に失敗しました', e);
+      }
+    }
+
+    function renderBlogList() {
+      const blogList = document.getElementById('blog-list');
+      if (!blogList) return;
+      
+      blogList.innerHTML = '';
+      
+      const grid = document.createElement('div');
+      grid.className = 'blog-grid';
+      
+      loadedBlogs.forEach(blog => {
+        const card = document.createElement('div');
+        card.className = 'blog-card';
+        card.onclick = () => viewBlogDetail(blog.id);
+        card.innerHTML = `
+          <div class="blog-date">📅 ${new Date(blog.date).toLocaleDateString('ja-JP')}</div>
+          <div class="blog-content">
+            <div class="blog-title">${blog.title}</div>
+            <div class="blog-excerpt">${blog.excerpt}</div>
+            <div class="blog-author">✍️ ${blog.author}</div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+      blogList.appendChild(grid);
+
+      const adminSection = document.createElement('div');
+      adminSection.style.marginTop = '40px';
+      adminSection.innerHTML = `
+        <h3 class="section-title">✍️ 【管理者用】記事を投稿する</h3>
+        <div class="form-section" style="max-width: 100%;">
+          <div class="form-group">
+            <label class="form-label">管理者パスワード</label>
+            <input type="password" id="blog-password" placeholder="パスワードを入力...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">タイトル</label>
+            <input type="text" id="blog-title" placeholder="記事のタイトルを入力...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">概要（一行）</label>
+            <input type="text" id="blog-excerpt" placeholder="記事の簡単な説明...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">本文</label>
+            <textarea id="blog-content" placeholder="記事の本文を入力..."></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">投稿者名</label>
+            <input type="text" id="blog-author" placeholder="あなたの名前...">
+          </div>
+          <button class="cta-button" onclick="publishBlog()">記事を投稿</button>
+          <div id="blog-result"></div>
+        </div>
+      `;
+      
+      blogList.appendChild(adminSection);
+    }
+
+    function viewBlogDetail(id) {
+      const blog = loadedBlogs.find(b => b.id === id);
+      if (!blog) return;
+      
+      const blogList = document.getElementById('blog-list');
+      const blogDetail = document.getElementById('blog-detail');
+      
+      blogList.style.display = 'none';
+      blogDetail.style.display = 'block';
+      
+      blogDetail.innerHTML = `
+        <div class="back-button" onclick="closeBlogDetail()">← 記事一覧に戻る</div>
+        <div class="blog-detail">
+          <div class="blog-detail-date">📅 ${new Date(blog.date).toLocaleDateString('ja-JP')}</div>
+          <h1 class="blog-detail-title">${blog.title}</h1>
+          <div class="blog-detail-author">✍️ ${blog.author}</div>
+          <div class="blog-detail-content">${blog.content.split('\n').join('<br>')}</div>
+        </div>
+      `;
+      
+      window.scrollTo(0, 0);
+    }
+
+    function closeBlogDetail() {
+      document.getElementById('blog-list').style.display = 'block';
+      document.getElementById('blog-detail').style.display = 'none';
+    }
+
+    async function publishBlog() {
+      const password = document.getElementById('blog-password').value;
+      const title = document.getElementById('blog-title').value;
+      const excerpt = document.getElementById('blog-excerpt').value;
+      const content = document.getElementById('blog-content').value;
+      const author = document.getElementById('blog-author').value;
+
+      if (!password || !title || !excerpt || !content || !author) {
+        alert('すべてのフィールドを入力してください！');
+        return;
+      }
+
+      const payload = { password, title, excerpt, content, author };
+
+      try {
+        const res = await fetch('/api/blogs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        const resultDiv = document.getElementById('blog-result');
+
+        if (data.success) {
+          resultDiv.className = 'success';
+          resultDiv.textContent = '✅ 記事が投稿されました！';
+          
+          document.getElementById('blog-password').value = 'azarasi1234';
+          document.getElementById('blog-title').value = '';
+          document.getElementById('blog-excerpt').value = '';
+          document.getElementById('blog-content').value = '';
+          document.getElementById('blog-author').value = '';
+          
+          setTimeout(() => { fetchBlogs(); }, 1000);
+        } else {
+          resultDiv.className = 'error';
+          resultDiv.textContent = `❌ エラー: ${data.message}`;
+        }
+      } catch (e) {
+        alert('サーバーとの通信に失敗しました。');
+      }
+    }
+
+    function handleContactForm(e) {
+      e.preventDefault();
+      const resultDiv = document.getElementById('contact-result');
+      resultDiv.className = 'success';
+      resultDiv.innerHTML = `✅ ご送信ありがとうございます！<br>Discordで返信させていただきます。`;
+      document.querySelector('#contact form').reset();
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert('IPアドレスをコピーしました! 🎉');
+      });
+    }
+  </script>
+</body>
+</html>
