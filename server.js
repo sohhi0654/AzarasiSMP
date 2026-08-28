@@ -7,7 +7,7 @@ const app = express();
 const PORT = 3000;
 
 // マイクラサーバーの設定
-const MC_SERVER_IP = 'localhost';
+const MC_SERVER_IP = 'mc.azarasi.f5.si';
 const MC_SERVER_PORT = 25664;
 
 // 管理者用のブログ投稿パスワード
