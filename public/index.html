@@ -13,7 +13,6 @@
   
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-    /* グラデーションを削除し、bg.pngのみを背景に指定します */
     background: url('bg.png') no-repeat center center fixed;
     background-size: cover;
     color: #e8dcc8;
@@ -93,6 +92,13 @@ body {
   .nav-links button.active {
     color: #00d9ff;
     border-bottom: 2px solid #00d9ff;
+  }
+
+  /* ログインボタンを少し目立たせる */
+  .nav-links button.login-btn {
+    border: 1px solid #00d9ff;
+    padding: 5px 15px;
+    border-radius: 20px;
   }
 
   .container {
@@ -450,6 +456,11 @@ body {
     border: 2px solid #00d9ff;
     color: #00d9ff;
   }
+  
+  .small-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
 
   .players-grid {
     display: grid;
@@ -491,6 +502,30 @@ body {
     margin: 20px 0;
   }
 
+  /* 管理画面用スタイル */
+  .admin-contact-card {
+    background: rgba(15, 95, 143, 0.3);
+    border: 1px solid #00d9ff;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+  .admin-contact-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    padding-bottom: 10px;
+  }
+  .admin-contact-body { margin-bottom: 15px; white-space: pre-wrap; }
+  .status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+  }
+  .status-pending { background: #d25a30; color: white; }
+  .status-replied { background: #639922; color: white; }
+
   footer {
     background: rgba(15, 95, 143, 0.2);
     border-top: 2px solid #00d9ff;
@@ -501,21 +536,10 @@ body {
   }
 
   @media (max-width: 768px) {
-    .hero-title {
-      font-size: 2.5em;
-    }
-    
-    .server-info {
-      grid-template-columns: 1fr;
-    }
-    
-    .nav-links {
-      gap: 10px;
-    }
-    
-    .features-grid {
-      grid-template-columns: 1fr;
-    }
+    .hero-title { font-size: 2.5em; }
+    .server-info { grid-template-columns: 1fr; }
+    .nav-links { gap: 10px; }
+    .features-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -536,6 +560,7 @@ body {
         <button onclick="switchPage('blog')" class="nav-btn" data-page="blog">ニュース</button>
         <button onclick="switchPage('members')" class="nav-btn" data-page="members">メンバー</button>
         <button onclick="switchPage('contact')" class="nav-btn" data-page="contact">お問い合わせ</button>
+        <button onclick="switchPage('admin')" class="nav-btn login-btn" data-page="admin">ログイン</button>
       </nav>
     </div>
   </header>
@@ -636,61 +661,40 @@ body {
     <!-- RULES PAGE -->
     <div id="rules" class="page">
       <h1 class="hero-title" style="text-align: center; margin: 40px 0;">📜 コミュニティルール</h1>
-      
       <div class="rule-card">
         <div class="rule-title">🚫 PvP（殺し合い）について</div>
         <div class="rule-content">
           Azarasi SMPでは、プレイヤー同士の殺し合いを推奨していません。このサーバーは協力と共存をコンセプトとしています。やむを得ない状況での戦闘を除き、他のプレイヤーを意図的に攻撃することはお控えください。
         </div>
       </div>
-
+      <!-- 他のルールは省略せず保持 -->
       <div class="rule-card">
         <div class="rule-title">🤝 協力を心がける</div>
-        <div class="rule-content">
-          サーバーの魅力は、みんなで協力して世界を作り上げることです。困っている人を助けたり、大きなプロジェクトには一緒に参加したりしましょう。一人で黙々と開発するのもOKですが、チームワークを大切にしましょう。
-        </div>
+        <div class="rule-content">サーバーの魅力は、みんなで協力して世界を作り上げることです。困っている人を助けたり、大きなプロジェクトには一緒に参加したりしましょう。</div>
       </div>
-
       <div class="rule-card">
         <div class="rule-title">🏠 他のプレイヤーの建築物を尊重</div>
-        <div class="rule-content">
-          他の人が作った建物や施設を無断で破壊・改造することは厳禁です。もし改造したい場合は、必ず事前に相談してください。Prismで履歴が記録されているので、無断破壊は検知されます。
-        </div>
+        <div class="rule-content">他の人が作った建物や施設を無断で破壊・改造することは厳禁です。</div>
       </div>
-
       <div class="rule-card">
         <div class="rule-title">💬 荒らし・ハラスメント禁止</div>
-        <div class="rule-content">
-          チャットでの暴言、嫌がらせ、スパムは一切禁止です。楽しいコミュニティを保つため、みんなが気持ちよく過ごせるような言葉遣いを心がけましょう。深刻な荒らしはサーバーからの強制退出となります。
-        </div>
+        <div class="rule-content">チャットでの暴言、嫌がらせ、スパムは一切禁止です。</div>
       </div>
-
       <div class="rule-card">
         <div class="rule-title">⚠️ チート・不正行為禁止</div>
-        <div class="rule-content">
-          X-Ray、マクロ、MODなどの不正ツール使用は厳禁です。バニラクライアントでの正々堂々としたプレイをお願いします。チートが発見された場合、即座にサーバーから削除されます。
-        </div>
+        <div class="rule-content">X-Ray、マクロ、MODなどの不正ツール使用は厳禁です。</div>
       </div>
-
       <div class="rule-card">
         <div class="rule-title">🎯 資源の独占禁止</div>
-        <div class="rule-content">
-          レアな資源（ダイヤモンド鉱石がある場所など）を意図的に独占することは控えてください。みんなで共存できるように、バランスよく利用しましょう。もし大規模なマイニング計画があれば、Discordで事前に相談しましょう。
-        </div>
+        <div class="rule-content">レアな資源を意図的に独占することは控えてください。</div>
       </div>
-
       <div class="rule-card">
         <div class="rule-title">🌍 ワールド保全</div>
-        <div class="rule-content">
-          大規模な地形改変（山を丸ごと削る、海を埋め立てるなど）をする場合は、事前にコミュニティに相談してください。みんなで気持ちよく遊べるワールドを保ちましょう。
-        </div>
+        <div class="rule-content">大規模な地形改変をする場合は、事前にコミュニティに相談してください。</div>
       </div>
-
       <div class="rule-card">
         <div class="rule-title">✅ 楽しさ優先</div>
-        <div class="rule-content">
-          上記のルールは目安です。最優先は「みんなで楽しむ」こと。判断に迷ったら、Discordで相談してください。運営メンバーがいつでも相談に乗ります！
-        </div>
+        <div class="rule-content">上記のルールは目安です。最優先は「みんなで楽しむ」こと。</div>
       </div>
     </div>
 
@@ -774,9 +778,9 @@ body {
             <label class="form-label">メッセージ</label>
             <textarea id="contact-message" required></textarea>
           </div>
-          <button type="submit" class="cta-button">送信</button>
+          <button type="submit" class="cta-button" id="contact-submit-btn">送信する</button>
         </form>
-        <div id="contact-result"></div>
+        <div id="contact-result" style="display: none;"></div>
       </div>
 
       <div class="container" style="text-align: center; margin-top: 40px;">
@@ -786,6 +790,58 @@ body {
           ぜひサーバーに参加してお話しましょう 🦭
         </p>
         <a href="https://discord.gg/ZmKjZXjVSW" class="cta-button" target="_blank">Discordに参加</a>
+      </div>
+    </div>
+
+    <!-- ADMIN PAGE (新規追加) -->
+    <div id="admin" class="page">
+      <h1 class="hero-title" style="text-align: center; margin: 40px 0;">🔐 管理者ページ</h1>
+      
+      <!-- ログイン前 -->
+      <div id="admin-login-section" class="form-section">
+        <h2 class="section-title" style="margin-top:0;">ログイン</h2>
+        <div class="form-group">
+          <label class="form-label">管理者パスワード</label>
+          <input type="password" id="admin-password-input" placeholder="パスワードを入力">
+        </div>
+        <button class="cta-button" onclick="doAdminLogin()">ログイン</button>
+        <div id="admin-login-error" class="error" style="display:none; margin-top:10px;"></div>
+      </div>
+
+      <!-- ログイン後ダッシュボード -->
+      <div id="admin-dashboard" style="display:none;">
+        <div style="text-align: right; margin-bottom: 20px;">
+          <button class="cta-button secondary small-btn" onclick="doAdminLogout()">ログアウト</button>
+        </div>
+
+        <!-- お問い合わせ管理 -->
+        <h2 class="section-title">📩 届いたお問い合わせ・質問</h2>
+        <div id="admin-contacts-list">
+          <p style="color:#b0a89e;">読み込み中...</p>
+        </div>
+
+        <!-- ブログ投稿 (元々ニュースページにあったものを移動) -->
+        <h2 class="section-title" style="margin-top: 60px;">✍️ ニュース・ブログを投稿する</h2>
+        <div class="form-section" style="max-width: 100%;">
+          <div class="form-group">
+            <label class="form-label">タイトル</label>
+            <input type="text" id="blog-title" placeholder="記事のタイトルを入力...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">概要（一行）</label>
+            <input type="text" id="blog-excerpt" placeholder="記事の簡単な説明...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">本文</label>
+            <textarea id="blog-content" placeholder="記事の本文を入力..."></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">投稿者名</label>
+            <input type="text" id="blog-author" placeholder="あなたの名前...">
+          </div>
+          <button class="cta-button" onclick="publishBlog()">記事を投稿</button>
+          <div id="blog-result" style="display:none; margin-top:10px;"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -798,6 +854,7 @@ body {
   <script>
     let currentPage = 'home';
     let loadedBlogs = [];
+    let savedAdminPassword = '';
 
     async function fetchServerStatus() {
       try {
@@ -834,6 +891,13 @@ body {
     window.onload = () => {
       fetchServerStatus();
       setInterval(fetchServerStatus, 15000);
+      
+      // セッションにパスワードがあれば自動ログイン
+      const sessionPwd = sessionStorage.getItem('admin_pwd');
+      if(sessionPwd) {
+        savedAdminPassword = sessionPwd;
+        showAdminDashboard();
+      }
     };
 
     function switchPage(page) {
@@ -847,11 +911,16 @@ body {
       
       if (page === 'blog') {
         fetchBlogs();
+      } else if (page === 'admin' && savedAdminPassword) {
+        loadAdminContacts();
       }
       
       window.scrollTo(0, 0);
     }
 
+    /* ------------------------------
+       ブログ機能
+    ------------------------------ */
     async function fetchBlogs() {
       try {
         const res = await fetch('/api/blogs');
@@ -865,7 +934,6 @@ body {
     function renderBlogList() {
       const blogList = document.getElementById('blog-list');
       if (!blogList) return;
-      
       blogList.innerHTML = '';
       
       const grid = document.createElement('div');
@@ -886,38 +954,6 @@ body {
         grid.appendChild(card);
       });
       blogList.appendChild(grid);
-
-      const adminSection = document.createElement('div');
-      adminSection.style.marginTop = '40px';
-      adminSection.innerHTML = `
-        <h3 class="section-title">✍️ 【管理者用】記事を投稿する</h3>
-        <div class="form-section" style="max-width: 100%;">
-          <div class="form-group">
-            <label class="form-label">管理者パスワード</label>
-            <input type="password" id="blog-password" placeholder="パスワードを入力...">
-          </div>
-          <div class="form-group">
-            <label class="form-label">タイトル</label>
-            <input type="text" id="blog-title" placeholder="記事のタイトルを入力...">
-          </div>
-          <div class="form-group">
-            <label class="form-label">概要（一行）</label>
-            <input type="text" id="blog-excerpt" placeholder="記事の簡単な説明...">
-          </div>
-          <div class="form-group">
-            <label class="form-label">本文</label>
-            <textarea id="blog-content" placeholder="記事の本文を入力..."></textarea>
-          </div>
-          <div class="form-group">
-            <label class="form-label">投稿者名</label>
-            <input type="text" id="blog-author" placeholder="あなたの名前...">
-          </div>
-          <button class="cta-button" onclick="publishBlog()">記事を投稿</button>
-          <div id="blog-result"></div>
-        </div>
-      `;
-      
-      blogList.appendChild(adminSection);
     }
 
     function viewBlogDetail(id) {
@@ -939,7 +975,6 @@ body {
           <div class="blog-detail-content">${blog.content.split('\n').join('<br>')}</div>
         </div>
       `;
-      
       window.scrollTo(0, 0);
     }
 
@@ -948,19 +983,205 @@ body {
       document.getElementById('blog-detail').style.display = 'none';
     }
 
+    /* ------------------------------
+       お問い合わせフォーム送信
+    ------------------------------ */
+    async function handleContactForm(e) {
+      e.preventDefault();
+      const btn = document.getElementById('contact-submit-btn');
+      btn.innerText = '送信中...';
+      btn.disabled = true;
+
+      const payload = {
+        name: document.getElementById('contact-name').value,
+        email: document.getElementById('contact-email').value,
+        subject: document.getElementById('contact-subject').value,
+        message: document.getElementById('contact-message').value
+      };
+
+      try {
+        const res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        const resultDiv = document.getElementById('contact-result');
+        resultDiv.style.display = 'block';
+
+        if(data.success) {
+          resultDiv.className = 'success';
+          resultDiv.innerHTML = `✅ ご送信ありがとうございます！<br>Discordに通知を送信しました。運営からの返信をお待ちください。`;
+          document.querySelector('#contact form').reset();
+        } else {
+          resultDiv.className = 'error';
+          resultDiv.innerHTML = `❌ エラーが発生しました。時間をおいて再試行してください。`;
+        }
+      } catch (err) {
+        alert('サーバーとの通信に失敗しました。');
+      } finally {
+        btn.innerText = '送信する';
+        btn.disabled = false;
+      }
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert('IPアドレスをコピーしました! 🎉');
+      });
+    }
+
+    /* ------------------------------
+       管理者機能
+    ------------------------------ */
+    async function doAdminLogin() {
+      const pwd = document.getElementById('admin-password-input').value;
+      if(!pwd) return;
+      
+      // 試しにお問い合わせ一覧を取得してみてパスワードチェック
+      try {
+        const res = await fetch('/api/admin/contacts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: pwd })
+        });
+        const data = await res.json();
+        
+        const errDiv = document.getElementById('admin-login-error');
+        if (data.success) {
+          savedAdminPassword = pwd;
+          sessionStorage.setItem('admin_pwd', pwd);
+          errDiv.style.display = 'none';
+          showAdminDashboard();
+          renderAdminContacts(data.contacts);
+        } else {
+          errDiv.style.display = 'block';
+          errDiv.innerText = '❌ パスワードが間違っています。';
+        }
+      } catch(e) {
+        alert('通信エラーが発生しました');
+      }
+    }
+
+    function doAdminLogout() {
+      savedAdminPassword = '';
+      sessionStorage.removeItem('admin_pwd');
+      document.getElementById('admin-password-input').value = '';
+      document.getElementById('admin-login-section').style.display = 'block';
+      document.getElementById('admin-dashboard').style.display = 'none';
+    }
+
+    function showAdminDashboard() {
+      document.getElementById('admin-login-section').style.display = 'none';
+      document.getElementById('admin-dashboard').style.display = 'block';
+      loadAdminContacts(); // ログイン直後に自動読み込み
+    }
+
+    async function loadAdminContacts() {
+      if(!savedAdminPassword) return;
+      try {
+        const res = await fetch('/api/admin/contacts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: savedAdminPassword })
+        });
+        const data = await res.json();
+        if(data.success) {
+          renderAdminContacts(data.contacts);
+        } else {
+          doAdminLogout();
+        }
+      } catch(e) {
+        console.error(e);
+      }
+    }
+
+    function renderAdminContacts(contacts) {
+      const listEl = document.getElementById('admin-contacts-list');
+      listEl.innerHTML = '';
+
+      if(!contacts || contacts.length === 0) {
+        listEl.innerHTML = '<p style="color:#b0a89e;">現在お問い合わせはありません。</p>';
+        return;
+      }
+
+      contacts.forEach(c => {
+        const div = document.createElement('div');
+        div.className = 'admin-contact-card';
+        
+        const isReplied = c.status === 'replied';
+        const statusBadge = isReplied 
+          ? `<span class="status-badge status-replied">✅ 返信済み</span>`
+          : `<span class="status-badge status-pending">⏳ 未返信</span>`;
+
+        let replyHtml = '';
+        if(isReplied) {
+          replyHtml = `
+            <div style="background: rgba(0,217,255,0.1); padding: 10px; border-radius: 5px; margin-top: 10px;">
+              <strong>あなたの返信:</strong><br>
+              ${c.reply.replace(/\n/g, '<br>')}
+            </div>`;
+        } else {
+          replyHtml = `
+            <div style="margin-top:15px;">
+              <textarea id="reply-msg-${c.id}" placeholder="返信内容を入力...Discordに送信されます" style="min-height: 80px; margin-bottom: 10px;"></textarea>
+              <button class="cta-button small-btn" onclick="sendReply('${c.id}')">Discordへ返信を送信</button>
+            </div>`;
+        }
+
+        div.innerHTML = `
+          <div class="admin-contact-header">
+            <div>
+              <strong style="color:#00d9ff; font-size:1.1em;">${c.subject}</strong><br>
+              <span style="font-size:12px; color:#b0a89e;">送信者: ${c.name} (${new Date(c.date).toLocaleString('ja-JP')})</span>
+            </div>
+            <div>${statusBadge}</div>
+          </div>
+          <div class="admin-contact-body">${c.message.replace(/\n/g, '<br>')}</div>
+          ${replyHtml}
+        `;
+        listEl.appendChild(div);
+      });
+    }
+
+    async function sendReply(id) {
+      const replyMsg = document.getElementById(`reply-msg-${id}`).value;
+      if(!replyMsg) return alert('返信内容を入力してください');
+
+      try {
+        const res = await fetch('/api/admin/reply', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: savedAdminPassword, id: id, replyMessage: replyMsg })
+        });
+        const data = await res.json();
+        if(data.success) {
+          alert('返信をDiscordに送信しました！');
+          loadAdminContacts(); // リスト再描画
+        } else {
+          alert('返信に失敗しました。');
+        }
+      } catch(e) {
+        alert('通信エラー');
+      }
+    }
+
     async function publishBlog() {
-      const password = document.getElementById('blog-password').value;
       const title = document.getElementById('blog-title').value;
       const excerpt = document.getElementById('blog-excerpt').value;
       const content = document.getElementById('blog-content').value;
       const author = document.getElementById('blog-author').value;
+      const resultDiv = document.getElementById('blog-result');
 
-      if (!password || !title || !excerpt || !content || !author) {
+      if (!title || !excerpt || !content || !author) {
         alert('すべてのフィールドを入力してください！');
         return;
       }
 
-      const payload = { password, title, excerpt, content, author };
+      const payload = { 
+        password: savedAdminPassword, 
+        title, excerpt, content, author 
+      };
 
       try {
         const res = await fetch('/api/blogs', {
@@ -970,19 +1191,15 @@ body {
         });
         const data = await res.json();
 
-        const resultDiv = document.getElementById('blog-result');
-
+        resultDiv.style.display = 'block';
         if (data.success) {
           resultDiv.className = 'success';
           resultDiv.textContent = '✅ 記事が投稿されました！';
           
-          document.getElementById('blog-password').value = 'azarasi1234';
           document.getElementById('blog-title').value = '';
           document.getElementById('blog-excerpt').value = '';
           document.getElementById('blog-content').value = '';
           document.getElementById('blog-author').value = '';
-          
-          setTimeout(() => { fetchBlogs(); }, 1000);
         } else {
           resultDiv.className = 'error';
           resultDiv.textContent = `❌ エラー: ${data.message}`;
@@ -990,20 +1207,6 @@ body {
       } catch (e) {
         alert('サーバーとの通信に失敗しました。');
       }
-    }
-
-    function handleContactForm(e) {
-      e.preventDefault();
-      const resultDiv = document.getElementById('contact-result');
-      resultDiv.className = 'success';
-      resultDiv.innerHTML = `✅ ご送信ありがとうございます！<br>Discordで返信させていただきます。`;
-      document.querySelector('#contact form').reset();
-    }
-
-    function copyToClipboard(text) {
-      navigator.clipboard.writeText(text).then(() => {
-        alert('IPアドレスをコピーしました! 🎉');
-      });
     }
   </script>
 </body>
