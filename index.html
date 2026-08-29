@@ -11,7 +11,7 @@
     box-sizing: border-box;
   }
   
-  body {
+body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
     background: url('bg.png') no-repeat center center fixed;
     background-size: cover;
@@ -70,7 +70,7 @@
 
   .nav-links {
     display: flex;
-    gap: 20px;
+    gap: 25px;
     flex-wrap: wrap;
     justify-content: center;
   }
@@ -501,6 +501,7 @@
     margin: 20px 0;
   }
 
+  /* 管理画面用スタイル */
   .admin-contact-card {
     background: rgba(15, 95, 143, 0.3);
     border: 1px solid #00d9ff;
@@ -556,7 +557,6 @@
         <button onclick="switchPage('home')" class="nav-btn active" data-page="home">ホーム</button>
         <button onclick="switchPage('rules')" class="nav-btn" data-page="rules">ルール</button>
         <button onclick="switchPage('blog')" class="nav-btn" data-page="blog">ニュース</button>
-        <button onclick="switchPage('bbs')" class="nav-btn" data-page="bbs">掲示板</button>
         <button onclick="switchPage('members')" class="nav-btn" data-page="members">メンバー</button>
         <button onclick="switchPage('contact')" class="nav-btn" data-page="contact">お問い合わせ</button>
         <button onclick="switchPage('admin')" class="nav-btn login-btn" data-page="admin">ログイン</button>
@@ -703,34 +703,6 @@
       <div id="blog-detail" style="display: none;"></div>
     </div>
 
-    <!-- BBS PAGE (新規追加: 掲示板) -->
-    <div id="bbs" class="page">
-      <h1 class="hero-title" style="text-align: center; margin: 40px 0;">💬 みんなの掲示板</h1>
-      
-      <div class="form-section" style="max-width: 800px;">
-        <h2 class="section-title" style="margin-top: 0;">一言メッセージを残す</h2>
-        <form onsubmit="handleBbsForm(event)">
-          <div class="form-group">
-            <label class="form-label">お名前（マイクラIDなど）</label>
-            <input type="text" id="bbs-name" required placeholder="例：アザラシ好き">
-          </div>
-          <div class="form-group">
-            <label class="form-label">メッセージ</label>
-            <textarea id="bbs-message" required placeholder="今日の出来事やサーバーへの意気込みなどをどうぞ！" style="min-height: 100px;"></textarea>
-          </div>
-          <button type="submit" class="cta-button" id="bbs-submit-btn">投稿する</button>
-        </form>
-        <div id="bbs-result" style="display: none;"></div>
-      </div>
-
-      <div class="container" style="max-width: 800px; margin-top: 40px;">
-        <h3 class="section-title">投稿一覧</h3>
-        <div id="bbs-list">
-          <p style="color: #b0a89e; text-align: center;">読み込み中...</p>
-        </div>
-      </div>
-    </div>
-
     <!-- MEMBERS PAGE -->
     <div id="members" class="page">
       <h1 class="hero-title" style="text-align: center; margin: 40px 0;">👥 メンバー</h1>
@@ -807,6 +779,20 @@
           <button type="submit" class="cta-button" id="contact-submit-btn">送信する</button>
         </form>
         <div id="contact-result" style="display: none;"></div>
+      </div>
+
+      <!-- ▼ 追加：Discordに入れない人用：返信確認エリア -->
+      <div class="form-section" style="margin-top: 40px; border-color: #00d9ff;">
+        <h2 class="section-title" style="margin-top: 0;">🔍 返信を確認する</h2>
+        <p style="color: #b0a89e; font-size: 14px; margin-bottom: 15px;">
+          お問い合わせ時に表示された「確認用コード（ID）」を入力すると、運営からの返信をブラウザで確認できます。
+        </p>
+        <div class="form-group">
+          <label class="form-label">確認用コード（ID）</label>
+          <input type="text" id="check-contact-id" placeholder="例：1712345678901">
+        </div>
+        <button class="cta-button secondary small-btn" onclick="checkMyInquiry()">返信を見る</button>
+        <div id="my-inquiry-result" style="display: none; margin-top: 20px;"></div>
       </div>
 
       <div class="container" style="text-align: center; margin-top: 40px;">
@@ -932,8 +918,6 @@
       
       if (page === 'blog') {
         fetchBlogs();
-      } else if (page === 'bbs') {
-        fetchBbsPosts();
       } else if (page === 'admin' && savedAdminPassword) {
         loadAdminContacts();
       }
@@ -1003,83 +987,6 @@
       document.getElementById('blog-detail').style.display = 'none';
     }
 
-    /* 掲示板（BBS）機能 */
-    async function fetchBbsPosts() {
-      try {
-        const res = await fetch('/api/bbs');
-        const posts = await res.json();
-        renderBbsList(posts);
-      } catch (e) {
-        console.error('掲示板の取得に失敗しました', e);
-      }
-    }
-
-    function renderBbsList(posts) {
-      const listEl = document.getElementById('bbs-list');
-      if (!listEl) return;
-      
-      if (!posts || posts.length === 0) {
-        listEl.innerHTML = '<p style="color: #b0a89e; text-align: center;">まだ投稿はありません。最初のメッセージを投稿してみよう！</p>';
-        return;
-      }
-
-      listEl.innerHTML = posts.map(post => `
-        <div class="rule-card" style="margin-bottom: 15px;">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; color: #00d9ff;">
-            <strong>👤 ${escapeHtml(post.name)}</strong>
-            <span style="color: #b0a89e;">📅 ${new Date(post.date).toLocaleString('ja-JP')}</span>
-          </div>
-          <div class="rule-content" style="word-break: break-all;">${escapeHtml(post.message).replace(/\n/g, '<br>')}</div>
-        </div>
-      `).join('');
-    }
-
-    async function handleBbsForm(e) {
-      e.preventDefault();
-      const btn = document.getElementById('bbs-submit-btn');
-      btn.innerText = '投稿中...';
-      btn.disabled = true;
-
-      const payload = {
-        name: document.getElementById('bbs-name').value,
-        message: document.getElementById('bbs-message').value
-      };
-
-      try {
-        const res = await fetch('/api/bbs', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        const resultDiv = document.getElementById('bbs-result');
-        resultDiv.style.display = 'block';
-
-        if (data.success) {
-          resultDiv.className = 'success';
-          resultDiv.innerHTML = `✅ メッセージを投稿しました！`;
-          document.getElementById('bbs-message').value = '';
-          fetchBbsPosts();
-        } else {
-          resultDiv.className = 'error';
-          resultDiv.innerHTML = `❌ 投稿に失敗しました。`;
-        }
-      } catch (err) {
-        alert('サーバーとの通信に失敗しました。');
-      } finally {
-        btn.innerText = '投稿する';
-        btn.disabled = false;
-      }
-    }
-
-    function escapeHtml(str) {
-      return str.replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#039;');
-    }
-
     async function handleContactForm(e) {
       e.preventDefault();
       const btn = document.getElementById('contact-submit-btn');
@@ -1105,7 +1012,9 @@
 
         if(data.success) {
           resultDiv.className = 'success';
-          resultDiv.innerHTML = `✅ ご送信ありがとうございます！<br>Discordに通知を送信しました。運営からの返信をお待ちください。`;
+          resultDiv.innerHTML = `✅ ご送信ありがとうございます！Discordに通知を送信しました。<br>` +
+                                `あなたの確認用コード: <strong style="color: #fff; background: #0f5f8f; padding: 2px 6px; border-radius: 4px;">${data.id}</strong><br>` +
+                                `<small style="color: #b0a89e;">このコードを控えておくと、下部の「返信を確認する」からいつでも運営からの返信を見ることができます。</small>`;
           document.querySelector('#contact form').reset();
         } else {
           resultDiv.className = 'error';
@@ -1116,6 +1025,45 @@
       } finally {
         btn.innerText = '送信する';
         btn.disabled = false;
+      }
+    }
+
+    // ▼ 追加：ユーザーが自分の返信を確認する関数
+    async function checkMyInquiry() {
+      const id = document.getElementById('check-contact-id').value.trim();
+      const resultDiv = document.getElementById('my-inquiry-result');
+      
+      if (!id) {
+        alert('確認用コードを入力してください');
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/contact/check/${id}`);
+        const data = await res.json();
+        
+        resultDiv.style.display = 'block';
+        if (data.success) {
+          const c = data.contact;
+          const statusText = c.status === 'replied' ? '<span style="color: #b5e61d;">✅ 返信済み</span>' : '<span style="color: #d25a30;">⏳ 未返信（お待ちください）</span>';
+          
+          let replyContent = c.reply ? `<div style="background: rgba(0,217,255,0.1); padding: 15px; border-radius: 8px; margin-top: 10px;"><strong>💬 運営からの返信:</strong><br>${c.reply.replace(/\n/g, '<br>')}</div>` : '<p style="color: #b0a89e; margin-top: 10px;">まだ返信はありません。</p>';
+
+          resultDiv.className = '';
+          resultDiv.innerHTML = `
+            <div style="background: rgba(15, 95, 143, 0.3); padding: 20px; border-radius: 8px; border: 1px solid #00d9ff;">
+              <p style="font-size: 13px; color: #b0a89e; margin-bottom: 5px;">ステータス: ${statusText}</p>
+              <h4 style="color: #00d9ff; margin-bottom: 8px;">件名: ${c.subject}</h4>
+              <p style="font-size: 14px; margin-bottom: 10px; color: #e8dcc8;">あなたの質問: ${c.message}</p>
+              ${replyContent}
+            </div>
+          `;
+        } else {
+          resultDiv.className = 'error';
+          resultDiv.innerHTML = `❌ 該当するお問い合わせが見つかりませんでした。IDをご確認ください。`;
+        }
+      } catch (e) {
+        alert('通信に失敗しました。');
       }
     }
 
@@ -1214,8 +1162,8 @@
         } else {
           replyHtml = `
             <div style="margin-top:15px;">
-              <textarea id="reply-msg-${c.id}" placeholder="返信内容を入力...Discordに送信されます" style="min-height: 80px; margin-bottom: 10px;"></textarea>
-              <button class="cta-button small-btn" onclick="sendReply('${c.id}')">Discordへ返信を送信</button>
+              <textarea id="reply-msg-${c.id}" placeholder="返信内容を入力...Discordとサイトに反映されます" style="min-height: 80px; margin-bottom: 10px;"></textarea>
+              <button class="cta-button small-btn" onclick="sendReply('${c.id}')">返信を送信</button>
             </div>`;
         }
 
@@ -1223,7 +1171,7 @@
           <div class="admin-contact-header">
             <div>
               <strong style="color:#00d9ff; font-size:1.1em;">${c.subject}</strong><br>
-              <span style="font-size:12px; color:#b0a89e;">送信者: ${c.name} (${new Date(c.date).toLocaleString('ja-JP')})</span>
+              <span style="font-size:12px; color:#b0a89e;">送信者: ${c.name} (ID: ${c.id}) | ${new Date(c.date).toLocaleString('ja-JP')}</span>
             </div>
             <div>${statusBadge}</div>
           </div>
@@ -1246,7 +1194,7 @@
         });
         const data = await res.json();
         if(data.success) {
-          alert('返信をDiscordに送信しました！');
+          alert('返信を送信し、Discordにも通知しました！');
           loadAdminContacts();
         } else {
           alert('返信に失敗しました。');
