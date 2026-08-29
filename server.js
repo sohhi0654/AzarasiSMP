@@ -46,11 +46,6 @@ if (!fs.existsSync(contactsFile)) {
     fs.writeFileSync(contactsFile, '[]');
 }
 
-const bbsFile = path.join(__dirname, 'bbs.json');
-if (!fs.existsSync(bbsFile)) {
-    fs.writeFileSync(bbsFile, '[]');
-}
-
 
 // ------------------------------------
 // APIエンドポイント
@@ -107,64 +102,34 @@ app.post('/api/blogs', (req, res) => {
     }
 });
 
-// 掲示板の投稿を取得
-app.get('/api/bbs', (req, res) => {
-    try {
-        const posts = JSON.parse(fs.readFileSync(bbsFile, 'utf8'));
-        res.json(posts);
-    } catch (e) {
-        res.status(500).json([]);
-    }
-});
-
-// 掲示板に新しいメッセージを投稿
-app.post('/api/bbs', (req, res) => {
-    const { name, message } = req.body;
-
-    try {
-        const posts = JSON.parse(fs.readFileSync(bbsFile, 'utf8'));
-        const newPost = {
-            id: Date.now().toString(),
-            name: name || '名無しさん',
-            message: message || '',
-            date: new Date().toISOString()
-        };
-
-        posts.unshift(newPost);
-        fs.writeFileSync(bbsFile, JSON.stringify(posts, null, 2));
-
-        res.json({ success: true });
-    } catch (e) {
-        console.error('掲示板の投稿中にエラー:', e);
-        res.status(500).json({ success: false });
-    }
-});
-
-// 新しいお問い合わせを受け取る
+// 新しいお問い合わせを受け取る (ユーザーから送信)
 app.post('/api/contact', async (req, res) => {
     const { name, email, subject, message } = req.body;
 
     try {
         const contacts = JSON.parse(fs.readFileSync(contactsFile, 'utf8'));
+        const newContactId = Date.now().toString();
         const newContact = {
-            id: Date.now().toString(),
+            id: newContactId,
             name: name || '名無し',
             email: email || '',
             subject: subject || '無題',
             message: message || '',
             date: new Date().toISOString(),
-            status: 'pending',
+            status: 'pending', // pending, replied
             reply: ''
         };
 
         contacts.unshift(newContact);
         fs.writeFileSync(contactsFile, JSON.stringify(contacts, null, 2));
 
+        // Discordへ通知
         if (client.isReady()) {
             const channel = await client.channels.fetch(CONTACT_CHANNEL_ID);
             if (channel) {
                 await channel.send(
                     `🔔 **サイトから新しいお問い合わせが届きました**\n` +
+                    `**【確認用ID】** ${newContactId}\n` +
                     `**【送信者】** ${newContact.name}\n` +
                     `**【件名】** ${newContact.subject}\n` +
                     `**【メッセージ】**\n${newContact.message}`
@@ -172,14 +137,41 @@ app.post('/api/contact', async (req, res) => {
             }
         }
 
-        res.json({ success: true });
+        // ユーザーに発行したIDを返す
+        res.json({ success: true, id: newContactId });
     } catch (e) {
         console.error('お問い合わせの処理中にエラー:', e);
         res.status(500).json({ success: false });
     }
 });
 
-// お問い合わせ一覧を取得 (管理者用)
+// ▼ 追加：ユーザーが自分の問い合わせ＆返信を確認するAPI
+app.get('/api/contact/check/:id', (req, res) => {
+    const contactId = req.params.id;
+    try {
+        const contacts = JSON.parse(fs.readFileSync(contactsFile, 'utf8'));
+        const target = contacts.find(c => c.id === contactId);
+
+        if (!target) {
+            return res.json({ success: false });
+        }
+
+        res.json({
+            success: true,
+            contact: {
+                subject: target.subject,
+                message: target.message,
+                status: target.status,
+                reply: target.reply,
+                date: target.date
+            }
+        });
+    } catch (e) {
+        res.status(500).json({ success: false });
+    }
+});
+
+// お問い合わせ一覧を取得 (管理者用・要パスワード)
 app.post('/api/admin/contacts', (req, res) => {
     const { password } = req.body;
     if (password !== ADMIN_PASSWORD) {
@@ -194,7 +186,7 @@ app.post('/api/admin/contacts', (req, res) => {
     }
 });
 
-// お問い合わせへの返信 (管理者用)
+// お問い合わせへの返信 (管理者用・要パスワード)
 app.post('/api/admin/reply', async (req, res) => {
     const { password, id, replyMessage } = req.body;
     if (password !== ADMIN_PASSWORD) {
@@ -214,6 +206,7 @@ app.post('/api/admin/reply', async (req, res) => {
 
         fs.writeFileSync(contactsFile, JSON.stringify(contacts, null, 2));
 
+        // Discordへ返信内容を送信
         if (client.isReady()) {
             const channel = await client.channels.fetch(CONTACT_CHANNEL_ID);
             if (channel) {
