@@ -7,7 +7,7 @@ const { Client, GatewayIntentBits } = require('discord.js');
 const app = express();
 app.use(express.json());
 
-// 静的ファイルの提供 (index.html や bg.png があるフォルダを指定)
+// 静的ファイルの提供
 app.use(express.static(__dirname));
 
 const ADMIN_PASSWORD = 'azarasi1234';
@@ -15,7 +15,6 @@ const ADMIN_PASSWORD = 'azarasi1234';
 // ------------------------------------
 // Discord Botのセットアップ
 // ------------------------------------
-// Renderの環境変数からトークンを安全に読み込みます
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 const CONTACT_CHANNEL_ID = '1334457867012669440';
 
@@ -25,7 +24,6 @@ client.once('ready', () => {
     console.log(`✅ Discord Bot ログイン完了: ${client.user.tag}`);
 });
 
-// トークンが設定されている場合のみログインを試みる
 if (DISCORD_TOKEN) {
     client.login(DISCORD_TOKEN).catch(err => {
         console.error('❌ Discord Botのログインに失敗しました:', err);
@@ -46,6 +44,11 @@ if (!fs.existsSync(blogsFile)) {
 const contactsFile = path.join(__dirname, 'contacts.json');
 if (!fs.existsSync(contactsFile)) {
     fs.writeFileSync(contactsFile, '[]');
+}
+
+const bbsFile = path.join(__dirname, 'bbs.json');
+if (!fs.existsSync(bbsFile)) {
+    fs.writeFileSync(bbsFile, '[]');
 }
 
 
@@ -96,7 +99,6 @@ app.post('/api/blogs', (req, res) => {
             author,
             date: new Date().toISOString()
         };
-        // 先頭に追加 (新しいものが上に来るように)
         blogs.unshift(newBlog);
         fs.writeFileSync(blogsFile, JSON.stringify(blogs, null, 2));
         res.json({ success: true });
@@ -105,7 +107,40 @@ app.post('/api/blogs', (req, res) => {
     }
 });
 
-// 新しいお問い合わせを受け取る (ユーザーから送信)
+// 掲示板の投稿を取得
+app.get('/api/bbs', (req, res) => {
+    try {
+        const posts = JSON.parse(fs.readFileSync(bbsFile, 'utf8'));
+        res.json(posts);
+    } catch (e) {
+        res.status(500).json([]);
+    }
+});
+
+// 掲示板に新しいメッセージを投稿
+app.post('/api/bbs', (req, res) => {
+    const { name, message } = req.body;
+
+    try {
+        const posts = JSON.parse(fs.readFileSync(bbsFile, 'utf8'));
+        const newPost = {
+            id: Date.now().toString(),
+            name: name || '名無しさん',
+            message: message || '',
+            date: new Date().toISOString()
+        };
+
+        posts.unshift(newPost);
+        fs.writeFileSync(bbsFile, JSON.stringify(posts, null, 2));
+
+        res.json({ success: true });
+    } catch (e) {
+        console.error('掲示板の投稿中にエラー:', e);
+        res.status(500).json({ success: false });
+    }
+});
+
+// 新しいお問い合わせを受け取る
 app.post('/api/contact', async (req, res) => {
     const { name, email, subject, message } = req.body;
 
@@ -118,14 +153,13 @@ app.post('/api/contact', async (req, res) => {
             subject: subject || '無題',
             message: message || '',
             date: new Date().toISOString(),
-            status: 'pending', // pending, replied
+            status: 'pending',
             reply: ''
         };
 
         contacts.unshift(newContact);
         fs.writeFileSync(contactsFile, JSON.stringify(contacts, null, 2));
 
-        // Discordへ通知
         if (client.isReady()) {
             const channel = await client.channels.fetch(CONTACT_CHANNEL_ID);
             if (channel) {
@@ -145,7 +179,7 @@ app.post('/api/contact', async (req, res) => {
     }
 });
 
-// お問い合わせ一覧を取得 (管理者用・要パスワード)
+// お問い合わせ一覧を取得 (管理者用)
 app.post('/api/admin/contacts', (req, res) => {
     const { password } = req.body;
     if (password !== ADMIN_PASSWORD) {
@@ -160,7 +194,7 @@ app.post('/api/admin/contacts', (req, res) => {
     }
 });
 
-// お問い合わせへの返信 (管理者用・要パスワード)
+// お問い合わせへの返信 (管理者用)
 app.post('/api/admin/reply', async (req, res) => {
     const { password, id, replyMessage } = req.body;
     if (password !== ADMIN_PASSWORD) {
@@ -180,7 +214,6 @@ app.post('/api/admin/reply', async (req, res) => {
 
         fs.writeFileSync(contactsFile, JSON.stringify(contacts, null, 2));
 
-        // Discordへ返信内容を送信
         if (client.isReady()) {
             const channel = await client.channels.fetch(CONTACT_CHANNEL_ID);
             if (channel) {
@@ -198,7 +231,6 @@ app.post('/api/admin/reply', async (req, res) => {
         res.status(500).json({ success: false });
     }
 });
-
 
 // サーバーの起動
 const PORT = process.env.PORT || 3000;
