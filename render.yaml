@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: azarasi-smp
+    runtime: node
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: MC_HOST
+        value: mc.azarasi.f5.si
+      - key: MC_PORT
+        value: "25664"
+      - key: MC_TIMEOUT_MS
+        value: "5000"
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: DISCORD_TOKEN
+        sync: false
+      - key: CONTACT_CHANNEL_ID
+        value: "1334457867012669440"
